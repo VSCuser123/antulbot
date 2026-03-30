@@ -1,34 +1,17 @@
 const mineflayer = require('mineflayer');
-const http = require('http');
-
-// Это критически важно для Railway
-const port = process.env.PORT || 8080;
-http.createServer((req, res) => {
-  res.write("Bot is swimming!");
-  res.end();
-}).listen(port);
 
 const bot = mineflayer.createBot({
-    host: 'TulenSMP.aternos.me',
-    port: 25565,
-    username: 'Tulen_Guardian',
-    version: '1.21.1' 
+  host: 'TulenSMP.aternos.me', // Твой адрес Атерноса
+  port: 25565,                // Порт (обычно стандартный)
+  username: 'Tulen_Guardian',
+  version: '1.21.1',          // Для 1.21.10 используй 1.21.1 (протокол совпадает)
+  auth: 'offline'             // ОБЯЗАТЕЛЬНО для пиратского сервера
 });
 
 bot.on('spawn', () => {
-    console.log('Бот на месте!');
-    setInterval(() => {
-        if (bot.entity) {
-            bot.setControlState('jump', true);
-            setTimeout(() => bot.setControlState('jump', false), 500);
-            bot.look(bot.entity.yaw + 0.5, 0);
-        }
-    }, 15000);
+  console.log('Тюлень заплыл на сервер!');
+  bot.chat('Всем привет! Я охраняю шахматный дворец.');
 });
 
-bot.on('end', () => {
-    console.log('Вылет, перезагрузка через 30 сек...');
-    setTimeout(() => process.exit(1), 30000); 
-});
-
-bot.on('error', (err) => console.log('Ошибка:', err));
+bot.on('kicked', (reason) => console.log('Меня выкинули: ', reason));
+bot.on('error', (err) => console.log('Ошибка: ', err));
