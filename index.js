@@ -1,52 +1,34 @@
 const mineflayer = require('mineflayer');
 const http = require('http');
 
-// 1. "Заплатка", чтобы Replit не выключался (порт 8080)
+// Это критически важно для Railway
+const port = process.env.PORT || 8080;
 http.createServer((req, res) => {
-  res.write("Server is running!");
+  res.write("Bot is swimming!");
   res.end();
-}).listen(8080);
+}).listen(port);
 
-// 2. Настройки твоего сервера
-const botArgs = {
+const bot = mineflayer.createBot({
     host: 'TulenSMP.aternos.me',
     port: 25565,
-    username: 'Tulen_Guardian', // Сделал имя в стиле тюленя :)
-    version: '1.17.1'            // Твоя версия Fabric 1.17.1
-};
+    username: 'Tulen_Guardian',
+    version: '1.21.1' 
+});
 
-function createBot() {
-    const bot = mineflayer.createBot(botArgs);
-
-    bot.on('spawn', () => {
-        console.log('--- Бот успешно зашел на TulenSMP! ---');
-        
-        // Anti-AFK цикл: прыжок и поворот раз в 20 секунд
-        setInterval(() => {
-            if (bot.entity) {
-                bot.setControlState('jump', true);
-                setTimeout(() => bot.setControlState('jump', false), 500);
-                
-                const yaw = bot.entity.yaw + 0.8;
-                bot.look(yaw, 0);
-                console.log('Выполнено Anti-AFK действие');
-            }
-        }, 20000);
-    });
-
-    // Авто-реконнект при вылете
-    bot.on('end', () => {
-        console.log('Связь потеряна. Переподключение через 40 секунд...');
-        setTimeout(createBot, 40000);
-    });
-
-    bot.on('error', (err) => {
-        if (err.code === 'ECONNREFUSED') {
-            console.log('Ошибка: Сервер Aternos выключен. Бот ждет включения...');
-        } else {
-            console.log('Ошибка:', err);
+bot.on('spawn', () => {
+    console.log('Бот на месте!');
+    setInterval(() => {
+        if (bot.entity) {
+            bot.setControlState('jump', true);
+            setTimeout(() => bot.setControlState('jump', false), 500);
+            bot.look(bot.entity.yaw + 0.5, 0);
         }
-    });
-}
+    }, 15000);
+});
 
-createBot();
+bot.on('end', () => {
+    console.log('Вылет, перезагрузка через 30 сек...');
+    setTimeout(() => process.exit(1), 30000); 
+});
+
+bot.on('error', (err) => console.log('Ошибка:', err));
